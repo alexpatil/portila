@@ -16,10 +16,10 @@ type QuicConfig struct {
 // TLSConfig configures only the QUIC transport encryption between the client
 // (phone) and server.
 type TLSConfig struct {
-	CertFile         string `json:"cert_file"`
-	KeyFile          string `json:"key_file"`
-	CertValidityDays int    `json:"cert_validity_days"`
-	InsecureSkipVerify bool `json:"insecure_skip_verify"`
+	CertFile           string `json:"cert_file"`
+	KeyFile            string `json:"key_file"`
+	CertValidityDays   int    `json:"cert_validity_days"`
+	InsecureSkipVerify bool   `json:"insecure_skip_verify"`
 }
 
 // Logging configuration
