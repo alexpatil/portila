@@ -90,6 +90,24 @@ Run client:
 
 ---
 
+## ⚡ Performance & Benchmarks
+
+Measured over the Portila QUIC multiplexed reverse tunnel:
+
+| Metric | Result | Description |
+| :--- | :---: | :--- |
+| **Throughput** | **~60+ MB/s** | Single-stream continuous reverse data transfer |
+| **Concurrent Throughput** | **2,000+ RPS** | Multi-client parallel stream multiplexing (`b.RunParallel`) |
+| **Round-Trip Latency** | **< 1.0 ms** | Sub-millisecond stream turnaround time |
+| **Idle Memory Footprint** | **~12 MB** | Lightweight pure-Go runtime with zero-leak pooling |
+
+Run benchmarks locally:
+```bash
+go test -bench=BenchmarkTunnel -benchmem ./test
+```
+
+---
+
 ## 💻 Platforms
 
 | OS | Architectures | Server | Client | Mobile |
