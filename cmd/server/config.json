@@ -1,0 +1,37 @@
+{
+  "server": {
+    "quic_address": "0.0.0.0:4433",
+    "password": "Su233mfqtFltZLMoiySMoRR0jc1eoAaH",
+    "keep_alive_period": 25,
+    "max_idle_timeout": 600,
+    "clients": {
+      "client_android_2256": {
+        "enabled": true,
+        "ports": [44602],
+        "name": "Device 2256"
+      }
+    },
+    "quic": {
+      "max_incoming_streams": 10000,
+      "initial_stream_receive_window": 2,
+      "max_stream_receive_window": 6,
+      "initial_connection_receive_window": 4,
+      "max_connection_receive_window": 15,
+      "enable_datagrams": true,
+      "keep_alive_period": 25
+    },
+    "tls": {
+      "cert_validity_days": 365
+    },
+    "logging": {
+      "level": "info",
+      "colored": true
+    },
+    "limits": {
+      "max_concurrent_users": 1000,
+      "user_buffer_size": 32,
+      "connection_timeout": 10,
+      "queue_wait_seconds": 300
+    }
+  }
+}

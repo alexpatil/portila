@@ -1,0 +1,156 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release-matrix:
+    name: Build & Package Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+          - os: linux
+            arch: arm
+            arm_version: '7'
+          # Windows
+          - os: windows
+            arch: amd64
+          - os: windows
+            arch: arm64
+          # macOS (Darwin)
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+          # FreeBSD
+          - os: freebsd
+            arch: amd64
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Build Binaries
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          GOARM: ${{ matrix.arm_version }}
+          CGO_ENABLED: '0'
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          mkdir -p build_output
+          EXT=""
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            EXT=".exe"
+          fi
+
+          SERVER_BIN="build_output/portila-server${EXT}"
+          CLIENT_BIN="build_output/portila-client${EXT}"
+
+          go build -trimpath -ldflags="-s -w -X main.version=${TAG_NAME}" -o "${SERVER_BIN}" ./cmd/server
+          go build -trimpath -ldflags="-s -w -X main.version=${TAG_NAME}" -o "${CLIENT_BIN}" ./cmd/client
+
+          # Copy default configs to archive
+          cp cmd/server/server.conf build_output/
+          cp cmd/client/client.conf build_output/
+          cp LICENSE build_output/
+          cp README.md build_output/
+
+          # Package
+          ARCH_LABEL="${{ matrix.arch }}"
+          if [ -n "${{ matrix.arm_version }}" ]; then
+            ARCH_LABEL="armv${{ matrix.arm_version }}"
+          fi
+          
+          PKG_NAME="portila_${TAG_NAME}_${{ matrix.os }}_${ARCH_LABEL}"
+          mkdir -p release_assets
+
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            cd build_output && zip -r "../release_assets/${PKG_NAME}.zip" ./* && cd ..
+          else
+            tar -czvf "release_assets/${PKG_NAME}.tar.gz" -C build_output .
+          fi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: assets-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm_version }}
+          path: release_assets/*
+
+  release-mobile:
+    name: Build Android Gomobile AAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Gomobile AAR
+        run: |
+          mkdir -p release_assets
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          gomobile init
+          gomobile bind -target=android -o release_assets/portila-mobile.aar ./pkg/mobile
+        continue-on-error: true
+
+      - name: Upload Mobile Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: assets-mobile-aar
+          path: release_assets/*
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [release-matrix, release-mobile]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download all built assets
+        uses: actions/download-artifact@v4
+        with:
+          path: all_assets
+          merge-multiple: true
+
+      - name: Generate Checksums
+        run: |
+          cd all_assets
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: all_assets/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false

@@ -1,0 +1,37 @@
+{
+  "client": {
+    "server_address": "127.0.0.1:4433",
+    "password": "Su233mfqtFltZLMoiySMoRR0jc1eoAaH",
+    "client_id": "client_android_2256",
+    "auto_reconnect": true,
+    "keep_alive_period": 25,
+    "max_idle_timeout": 600,
+    "dns_servers": ["1.1.1.1:53", "8.8.8.8:53"],
+    "quic": {
+      "max_incoming_streams": 32,
+      "initial_stream_receive_window": 4,
+      "max_stream_receive_window": 16,
+      "initial_connection_receive_window": 8,
+      "max_connection_receive_window": 32,
+      "enable_datagrams": true,
+      "allow_0rtt": false,
+      "disable_path_mtu_discovery": false
+    },
+    "tls": {
+      "insecure_skip_verify": true
+    },
+    "logging": {
+      "level": "info",
+      "colored": true
+    },
+    "performance": {
+      "buffer_size": 64,
+      "connection_timeout": 10,
+      "target_dial_timeout": 10
+    },
+    "limits": {
+      "per_host_concurrency": 3,
+      "queue_wait_seconds": 300
+    }
+  }
+}

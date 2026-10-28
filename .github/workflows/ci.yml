@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test & Race Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          check-latest: true
+          cache: true
+
+      - name: Run Tests with Race Detector
+        run: |
+          go test -v -race ./pkg/... ./test
+
+  cross-build:
+    name: Cross Build (${{ matrix.os }}/${{ matrix.arch }})
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+          - os: linux
+            arch: arm
+            arm_version: '7'
+          # Windows
+          - os: windows
+            arch: amd64
+          - os: windows
+            arch: arm64
+          # macOS (Darwin)
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+          # FreeBSD (Routers / BSD systems)
+          - os: freebsd
+            arch: amd64
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          check-latest: true
+          cache: true
+
+      - name: Compile Server & Client
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          GOARM: ${{ matrix.arm_version }}
+          CGO_ENABLED: '0'
+        run: |
+          EXT=""
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            EXT=".exe"
+          fi
+          go build -trimpath -ldflags="-s -w" -o "dist/portila-server-${{ matrix.os }}-${{ matrix.arch }}${EXT}" ./cmd/server
+          go build -trimpath -ldflags="-s -w" -o "dist/portila-client-${{ matrix.os }}-${{ matrix.arch }}${EXT}" ./cmd/client
+
+  mobile-build:
+    name: Android & Mobile Verification
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Verify Android Package Build
+        env:
+          GOOS: android
+          GOARCH: arm64
+          CGO_ENABLED: '0'
+        run: |
+          go build -v ./pkg/mobile
+
+      - name: Set up JDK & Android SDK for Gomobile AAR
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Gomobile & Build AAR
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          gomobile init
+          gomobile bind -target=android -o portila-mobile.aar ./pkg/mobile
+        continue-on-error: true
