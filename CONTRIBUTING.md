@@ -12,7 +12,7 @@ Thank you for your interest in contributing to **Portila**! We welcome community
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/portila/portila.git
+git clone https://github.com/alexpatil/portila.git
 cd portila
 ```
 
