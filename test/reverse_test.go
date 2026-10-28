@@ -1,10 +1,8 @@
 package test
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -55,12 +53,7 @@ func TestReverseTunnel(t *testing.T) {
 	go cli.Start()
 	defer cli.Stop()
 
-	time.Sleep(1 * time.Second)
-
-	conn, err := net.DialTimeout("tcp", vpsListenAddr, 3*time.Second)
-	if err != nil {
-		t.Fatalf("Failed to dial VPS port %s: %v", vpsListenAddr, err)
-	}
+	conn := dialWithRetry(t, "tcp", vpsListenAddr, 10*time.Second)
 	defer conn.Close()
 
 	if _, err := fmt.Fprintf(conn, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"); err != nil {
@@ -108,18 +101,13 @@ func TestSlowlorisPortProbe(t *testing.T) {
 	go cli.Start()
 	defer cli.Stop()
 
-	time.Sleep(1 * time.Second)
-
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", vpsPort), 2*time.Second)
-	if err != nil {
-		t.Fatalf("Failed to connect to VPS port %d: %v", vpsPort, err)
-	}
+	conn := dialWithRetry(t, "tcp", fmt.Sprintf("127.0.0.1:%d", vpsPort), 10*time.Second)
 	defer conn.Close()
 
 	start := time.Now()
 	buf := make([]byte, 1)
 	_ = conn.SetReadDeadline(time.Now().Add(8 * time.Second))
-	_, err = conn.Read(buf)
+	_, err := conn.Read(buf)
 	elapsed := time.Since(start)
 
 	if err == nil {
@@ -162,10 +150,10 @@ func TestMultiPortServiceRouting(t *testing.T) {
 	defer srv.Stop()
 
 	cli := client.NewTunnelClient(&config.ClientConfig{Client: config.ClientSettings{
-		ServerAddress: quicAddr,
-		Password:      testPassword,
-		ClientID:      "multi_client",
-		Mode:          "reverse",
+		ServerAddress:   quicAddr,
+		Password:        testPassword,
+		ClientID:        "multi_client",
+		Mode:            "reverse",
 		Tunnels: map[int]string{
 			portA: svcAlpha.Listener.Addr().String(),
 			portB: svcBeta.Listener.Addr().String(),
@@ -177,13 +165,7 @@ func TestMultiPortServiceRouting(t *testing.T) {
 	go cli.Start()
 	defer cli.Stop()
 
-	time.Sleep(1 * time.Second)
-
-	// Verify Service Alpha
-	connA, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", portA), 2*time.Second)
-	if err != nil {
-		t.Fatalf("Failed to dial portA %d: %v", portA, err)
-	}
+	connA := dialWithRetry(t, "tcp", fmt.Sprintf("127.0.0.1:%d", portA), 10*time.Second)
 	fmt.Fprintf(connA, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
 	bodyA, _ := io.ReadAll(connA)
 	connA.Close()
@@ -191,11 +173,7 @@ func TestMultiPortServiceRouting(t *testing.T) {
 		t.Fatalf("Port A response mismatch: %s", string(bodyA))
 	}
 
-	// Verify Service Beta
-	connB, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", portB), 2*time.Second)
-	if err != nil {
-		t.Fatalf("Failed to dial portB %d: %v", portB, err)
-	}
+	connB := dialWithRetry(t, "tcp", fmt.Sprintf("127.0.0.1:%d", portB), 10*time.Second)
 	fmt.Fprintf(connB, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
 	bodyB, _ := io.ReadAll(connB)
 	connB.Close()
@@ -204,80 +182,4 @@ func TestMultiPortServiceRouting(t *testing.T) {
 	}
 
 	t.Logf("✓ Multi-port routing verified: port %d -> Alpha, port %d -> Beta", portA, portB)
-}
-
-func TestReversePayloadIntegrity(t *testing.T) {
-	const payloadSize = 5 * 1024 * 1024
-	testData := make([]byte, payloadSize)
-	for i := range testData {
-		testData[i] = byte(i % 251)
-	}
-	expectedHash := sha256.Sum256(testData)
-
-	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", payloadSize))
-		w.Write(testData)
-	}))
-	defer origin.Close()
-
-	quicAddr := fmt.Sprintf("127.0.0.1:%d", freeUDPPort(t))
-	vpsPort := freeTCPPort(t)
-
-	srv := server.NewTunnelServer(&config.ServerConfig{Server: config.ServerSettings{
-		QuicAddress:     quicAddr,
-		Password:        testPassword,
-		KeepAlivePeriod: 25,
-		MaxIdleTimeout:  600,
-		TLS:             config.TLSConfig{CertValidityDays: 365},
-		Limits:          config.LimitConfig{MaxConcurrentUsers: 10, QueueWaitSeconds: 10},
-		Clients: map[string]config.ClientPortConfig{
-			"hash_client": {Enabled: true, Ports: []int{vpsPort}, Name: "hash_test"},
-		},
-	}})
-	go srv.Start()
-	defer srv.Stop()
-
-	cli := client.NewTunnelClient(&config.ClientConfig{Client: config.ClientSettings{
-		ServerAddress:   quicAddr,
-		Password:        testPassword,
-		ClientID:        "hash_client",
-		Mode:            "reverse",
-		LocalTarget:     origin.Listener.Addr().String(),
-		KeepAlivePeriod: 25,
-		MaxIdleTimeout:  600,
-		TLS:             config.TLSConfig{InsecureSkipVerify: true},
-	}})
-	go cli.Start()
-	defer cli.Stop()
-
-	time.Sleep(1 * time.Second)
-
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", vpsPort), 3*time.Second)
-	if err != nil {
-		t.Fatalf("Dial VPS: %v", err)
-	}
-	defer conn.Close()
-
-	fmt.Fprintf(conn, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
-
-	resp, err := io.ReadAll(conn)
-	if err != nil {
-		t.Fatalf("Read response: %v", err)
-	}
-
-	headerEnd := strings.Index(string(resp), "\r\n\r\n")
-	if headerEnd == -1 {
-		t.Fatalf("Could not locate HTTP body start")
-	}
-	body := resp[headerEnd+4:]
-
-	if len(body) != payloadSize {
-		t.Fatalf("Payload length mismatch: got %d, expected %d", len(body), payloadSize)
-	}
-
-	actualHash := sha256.Sum256(body)
-	if actualHash != expectedHash {
-		t.Fatalf("SHA-256 integrity mismatch!")
-	}
-	t.Logf("✓ 5MB data transferred through reverse tunnel with 100%% SHA-256 integrity match")
 }

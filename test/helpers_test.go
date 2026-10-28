@@ -166,6 +166,21 @@ func waitReady(t *testing.T, proxyAddr, target string) {
 	t.Fatal("tunnel did not become ready within 20s")
 }
 
+func dialWithRetry(t *testing.T, network, addr string, timeout time.Duration) net.Conn {
+	t.Helper()
+	deadline := time.Now().Add(timeout)
+	for {
+		conn, err := net.DialTimeout(network, addr, 200*time.Millisecond)
+		if err == nil {
+			return conn
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("failed to dial %s within %v: %v", addr, timeout, err)
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
+
 func freeTCPPort(t *testing.T) int {
 	t.Helper()
 	l, err := net.Listen("tcp", "127.0.0.1:0")
