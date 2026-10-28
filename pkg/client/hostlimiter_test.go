@@ -55,7 +55,14 @@ func TestDNSResolverDefault(t *testing.T) {
 	if res == nil {
 		t.Fatalf("expected non-nil resolver")
 	}
+}
+
+func TestDNSResolverCustom(t *testing.T) {
+	res := newDNSResolver([]string{"1.1.1.1:53"})
+	if res == nil {
+		t.Fatalf("expected non-nil resolver")
+	}
 	if !res.PreferGo {
-		t.Errorf("expected PreferGo to be true")
+		t.Errorf("expected PreferGo to be true for custom upstream servers")
 	}
 }

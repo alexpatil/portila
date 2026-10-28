@@ -11,6 +11,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -74,15 +75,18 @@ func NewTunnelClient(cfg *config.ClientConfig) *TunnelClient {
 	return c
 }
 
-// newDNSResolver builds a resolver that sends DNS queries to explicit upstream
-// servers instead of relying on the OS resolver config. PreferGo makes Go do
-// the DNS itself (no cgo, no /etc/resolv.conf needed) and our Dial overrides the
-// nameserver address, so it works on Android where system DNS config is absent.
-// Servers are tried in order; the first reachable one wins. May be a bare IP
-// (":53" is assumed) or "host:port". Defaults to Cloudflare + Google.
+// newDNSResolver builds a resolver. On standard operating systems (Linux, Windows, macOS),
+// it returns net.DefaultResolver by default so that the operating system's native DNS configuration
+// (systemd-resolved, VPNs, local /etc/hosts) is respected. If explicit upstream servers are
+// configured, or when running on Android (where /etc/resolv.conf is absent), it constructs
+// a custom net.Resolver with PreferGo.
 func newDNSResolver(servers []string) *net.Resolver {
 	if len(servers) == 0 {
-		servers = []string{"1.1.1.1:53", "8.8.8.8:53"}
+		if runtime.GOOS == "android" {
+			servers = []string{"1.1.1.1:53", "8.8.8.8:53"}
+		} else {
+			return net.DefaultResolver
+		}
 	}
 
 	normalized := make([]string, 0, len(servers))
@@ -350,7 +354,10 @@ func (c *TunnelClient) handleReverseStream(stream *quic.Stream, sourcePort int) 
 		target = specificTarget
 	}
 	if target == "" {
-		target = "127.0.0.1:8080"
+		c.logger.Printf("Reverse tunnel: no local target configured for port %d", sourcePort)
+		stream.CancelRead(0)
+		stream.CancelWrite(0)
+		return
 	}
 
 	dst, err := net.DialTimeout("tcp", target, 5*time.Second)

@@ -72,15 +72,15 @@ func (c *ClientConfig) Validate() error {
 func getDefaultConfig() *ClientConfig {
 	return &ClientConfig{
 		Client: ClientSettings{
-			ServerAddress:   "127.0.0.1:4433",
-			Password:        "change-this-password",
+			ServerAddress:   "",
+			Password:        "",
 			Mode:            "reverse",
-			LocalTarget:     "127.0.0.1:8080",
+			LocalTarget:     "",
 			Tunnels:         make(map[int]string),
 			AutoReconnect:   true,
 			MaxIdleTimeout:  600,
 			KeepAlivePeriod: 25,
-			DNSServers:      []string{"1.1.1.1:53", "8.8.8.8:53"},
+			DNSServers:      nil,
 
 			Quic: QuicConfig{
 				MaxIncomingStreams:             2048,
