@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ Portila
+# 🌀 Portila
 
 **High-performance, ultra-low latency reverse tunnel and mobile exit gateway built in Go over QUIC (HTTP/3).**
 
@@ -16,7 +16,7 @@ A modern, memory-safe alternative to Rathole and FRP with zero bloat.
 
 ---
 
-## ⚡ Highlights
+## ✨ Highlights
 
 * **QUIC (HTTP/3) Transport:** 0-RTT connection resumption, multiplexing without Head-of-Line blocking, and instant Wi-Fi/cellular connection migration.
 * **Dual Mode:**
@@ -32,9 +32,19 @@ A modern, memory-safe alternative to Rathole and FRP with zero bloat.
 
 ### 1. Installation
 
-Download pre-compiled binaries from [Releases](https://github.com/alexpatil/portila/releases) or build from source:
+**Download Pre-built Binaries:**
+Grab the latest release archive for your OS (Linux, macOS, Windows, Android) from [GitHub Releases](https://github.com/alexpatil/portila/releases).
 
+**Or install via Go:**
 ```bash
+go install github.com/alexpatil/portila/cmd/server@latest
+go install github.com/alexpatil/portila/cmd/client@latest
+```
+
+**Or build from source:**
+```bash
+git clone https://github.com/alexpatil/portila.git
+cd portila
 go build -o portila-server ./cmd/server
 go build -o portila-client ./cmd/client
 ```
