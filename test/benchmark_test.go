@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -14,8 +15,15 @@ import (
 	"portila/pkg/server"
 )
 
+func silenceLogs() func() {
+	old := log.Writer()
+	log.SetOutput(io.Discard)
+	return func() { log.SetOutput(old) }
+}
+
 // BenchmarkTunnelThroughput measures raw throughput over the reverse QUIC tunnel.
 func BenchmarkTunnelThroughput(b *testing.B) {
+	defer silenceLogs()()
 	const chunkSize = 1024 * 1024 // 1 MB
 	data := make([]byte, chunkSize)
 	for i := range data {
@@ -87,6 +95,7 @@ func BenchmarkTunnelThroughput(b *testing.B) {
 
 // BenchmarkTunnelLatency measures request-response round-trip latency.
 func BenchmarkTunnelLatency(b *testing.B) {
+	defer silenceLogs()()
 	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "OK")
 	}))
@@ -147,6 +156,7 @@ func BenchmarkTunnelLatency(b *testing.B) {
 
 // BenchmarkTunnelConcurrentLoad measures multi-client concurrent throughput.
 func BenchmarkTunnelConcurrentLoad(b *testing.B) {
+	defer silenceLogs()()
 	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "PONG")
 	}))
