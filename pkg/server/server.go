@@ -59,11 +59,7 @@ func (s *TunnelServer) Start() error {
 		return fmt.Errorf("failed to load TLS config: %w", err)
 	}
 
-	quicCfg := &quic.Config{
-		MaxIdleTimeout:  time.Duration(cfg.MaxIdleTimeout) * time.Second,
-		KeepAlivePeriod: time.Duration(cfg.KeepAlivePeriod) * time.Second,
-		EnableDatagrams: false,
-	}
+	quicCfg := protocol.DefaultQuicConfig(cfg.Quic, cfg.MaxIdleTimeout, cfg.KeepAlivePeriod)
 
 	quicListener, err := quic.ListenAddr(cfg.QuicAddress, tlsConf, quicCfg)
 	if err != nil {

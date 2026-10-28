@@ -130,18 +130,7 @@ func (c *TunnelClient) connectOnce() error {
 		NextProtos:         []string{protocol.ProtocolNextProto},
 	}
 
-	quicCfg := &quic.Config{
-		MaxIdleTimeout:                 time.Duration(cfg.MaxIdleTimeout) * time.Second,
-		KeepAlivePeriod:                time.Duration(cfg.KeepAlivePeriod) * time.Second,
-		MaxIncomingStreams:             int64(cfg.Quic.MaxIncomingStreams),
-		InitialStreamReceiveWindow:     uint64(cfg.Quic.InitialStreamReceiveWindow) * 1024 * 1024,
-		MaxStreamReceiveWindow:         uint64(cfg.Quic.MaxStreamReceiveWindow) * 1024 * 1024,
-		InitialConnectionReceiveWindow: uint64(cfg.Quic.InitialConnectionReceiveWindow) * 1024 * 1024,
-		MaxConnectionReceiveWindow:     uint64(cfg.Quic.MaxConnectionReceiveWindow) * 1024 * 1024,
-		EnableDatagrams:                cfg.Quic.EnableDatagrams,
-		Allow0RTT:                      cfg.Quic.Allow0RTT,
-		DisablePathMTUDiscovery:        cfg.Quic.DisablePathMTUDiscovery,
-	}
+	quicCfg := protocol.DefaultQuicConfig(cfg.Quic, cfg.MaxIdleTimeout, cfg.KeepAlivePeriod)
 
 	conn, err := quic.DialAddrEarly(c.ctx, cfg.ServerAddress, tlsConf, quicCfg)
 	if err != nil {

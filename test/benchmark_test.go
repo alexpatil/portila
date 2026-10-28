@@ -24,7 +24,7 @@ func silenceLogs() func() {
 // BenchmarkTunnelThroughput measures raw throughput over the reverse QUIC tunnel.
 func BenchmarkTunnelThroughput(b *testing.B) {
 	defer silenceLogs()()
-	const chunkSize = 1024 * 1024 // 1 MB
+	const chunkSize = 4 * 1024 * 1024 // 4 MB chunk
 	data := make([]byte, chunkSize)
 	for i := range data {
 		data[i] = byte(i % 253)
@@ -69,7 +69,7 @@ func BenchmarkTunnelThroughput(b *testing.B) {
 	time.Sleep(1 * time.Second)
 
 	vpsAddr := fmt.Sprintf("127.0.0.1:%d", vpsPort)
-	buf := make([]byte, 32*1024)
+	buf := make([]byte, 64*1024)
 
 	b.SetBytes(chunkSize)
 	b.ResetTimer()
