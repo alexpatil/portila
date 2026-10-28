@@ -47,8 +47,8 @@ func (o *originStats) enter() {
 
 func (o *originStats) leave() { o.inFlight.Add(-1) }
 
-// setupTunnel starts an origin server, the meghlock server (VPS role) and the
-// meghlock client (Termux role) fully in-process and returns the public proxy
+// setupTunnel starts an origin server, the portila server (VPS role) and the
+// portila client (Termux/device role) fully in-process and returns the public proxy
 // address plus the origin target address.
 func setupTunnel(t *testing.T, delay time.Duration, maxStreams int64, perHost int) (proxyAddr, target string, stats *originStats, stop func()) {
 	t.Helper()
@@ -66,7 +66,7 @@ func setupTunnel(t *testing.T, delay time.Duration, maxStreams int64, perHost in
 			_, _ = w.Write(make([]byte, bigSize))
 			return
 		}
-		io.WriteString(w, "OK-MEGHLOCK")
+		io.WriteString(w, "OK-PORTILA")
 	}))
 	target = origin.Listener.Addr().String()
 
@@ -157,7 +157,7 @@ func proxyRequest(proxyAddr, target string) (time.Duration, error) {
 	if err != nil {
 		return 0, err
 	}
-	if !strings.Contains(string(body), "OK-MEGHLOCK") {
+	if !strings.Contains(string(body), "OK-PORTILA") {
 		return 0, fmt.Errorf("unexpected body: %q", string(body))
 	}
 	return time.Since(start), nil

@@ -21,9 +21,9 @@ termux-setup-storage      # lets you copy files in/out via shared storage
 
 ```bash
 pkg install golang git
-git clone https://github.com/codingpenin/meghlock
-cd meghlock
-go build -o meghlock-client ./cmd/client
+git clone https://github.com/portila/portila
+cd portila
+go build -o portila-client ./cmd/client
 ```
 
 ### Option B — cross-compile on your PC (arm64 phones), then copy over
@@ -31,14 +31,14 @@ go build -o meghlock-client ./cmd/client
 Most modern phones are arm64:
 
 ```bash
-CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o meghlock-client ./cmd/client
+CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o portila-client ./cmd/client
 ```
 
 Copy it to the phone (e.g. into `Download/`), then in Termux:
 
 ```bash
-cp ~/storage/downloads/meghlock-client .
-chmod +x meghlock-client
+cp ~/storage/downloads/portila-client .
+chmod +x portila-client
 ```
 
 > 32-bit phones (`GOARCH=arm`) need a C toolchain to cross-compile — just use
@@ -77,7 +77,7 @@ a `[server.clients.<client_id>]` block.
 ## 4. Run
 
 ```bash
-./meghlock-client -c config.toml
+./portila-client -c client.conf
 ```
 
 Expected logs:
@@ -107,7 +107,7 @@ termux-wake-lock
 ```bash
 pkg install tmux
 tmux new -s tunnel
-./meghlock-client -c config.toml      # Ctrl-b then d to detach; 'tmux attach -t tunnel' to return
+./portila-client -c client.conf      # Ctrl-b then d to detach; 'tmux attach -t tunnel' to return
 ```
 
 **Auto-start on boot** with Termux:Boot (install from F-Droid). Create
@@ -116,8 +116,8 @@ tmux new -s tunnel
 ```bash
 #!/data/data/com.termux/files/usr/bin/sh
 termux-wake-lock
-cd ~/meghlock
-exec ./meghlock-client -c config.toml
+cd ~/portila
+exec ./portila-client -c client.conf
 ```
 
 ```bash

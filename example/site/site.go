@@ -100,7 +100,7 @@ func landing(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	writeHTML(w, `<h1>Meghlock Demo</h1>
+	writeHTML(w, `<h1>Portila Demo</h1>
 <link rel="stylesheet" href="/static/common.css"><script src="/static/app.js"></script>
 <form method="post" action="/login">
   user: <input name="user"> pass: <input name="pass" type="password">

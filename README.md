@@ -1,7 +1,7 @@
 # ⚡ Portila
 
-[![CI](https://github.com/meghl0ck/portila/actions/workflows/ci.yml/badge.svg)](https://github.com/meghl0ck/portila/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/meghl0ck/portila?style=flat&color=3b82f6)](https://github.com/meghl0ck/portila/releases)
+[![CI](https://github.com/portila/portila/actions/workflows/ci.yml/badge.svg)](https://github.com/portila/portila/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/portila/portila?style=flat&color=3b82f6)](https://github.com/portila/portila/releases)
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.24-00ADD8?style=flat&logo=go)](https://golang.org)
 [![Platform](https://img.shields.io/badge/platform-Linux%20|%20Windows%20|%20macOS%20|%20Android%20|%20FreeBSD-brightgreen)](#-supported-platforms)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

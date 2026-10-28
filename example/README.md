@@ -6,7 +6,7 @@ CSS/JS assets.
 
 ## 1. Load simulation (no browser needed)
 
-Boots a meghlock server + client in-process, serves the demo site over HTTPS,
+Boots a portila server + client in-process, serves the demo site over HTTPS,
 and drives N browser-like users (each logs in, then loads pages whose assets are
 fetched in parallel and cached) through the CONNECT proxy.
 
@@ -29,7 +29,7 @@ through a **single IP**.
 ## 2. Browse the demo site manually
 
 Runs just the site over HTTPS so you can open it in a browser (directly, or by
-setting your browser's HTTPS proxy to a running meghlock server).
+setting your browser's HTTPS proxy to a running portila server).
 
 ```bash
 go run ./example/serve -addr :8443

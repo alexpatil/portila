@@ -8,19 +8,19 @@ a public TCP **proxy port** per client that browsers point at.
 On the VPS (needs Go 1.24+):
 
 ```bash
-git clone https://github.com/codingpenin/meghlock
-cd meghlock
-CGO_ENABLED=0 go build -o meghlock-server ./cmd/server
+git clone https://github.com/portila/portila
+cd portila
+CGO_ENABLED=0 go build -o portila-server ./cmd/server
 ```
 
 Or cross-compile on your PC and copy the binary over:
 
 ```bash
 # amd64 VPS
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o meghlock-server ./cmd/server
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o portila-server ./cmd/server
 # arm64 VPS
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o meghlock-server ./cmd/server
-scp meghlock-server user@vps:/opt/meghlock/
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o portila-server ./cmd/server
+scp portila-server user@vps:/opt/portila/
 ```
 
 ## 2. Configure
@@ -64,7 +64,7 @@ On cloud providers, also allow these in the security group / firewall panel.
 ## 4. Run
 
 ```bash
-./meghlock-server -c config.toml
+./portila-server -c server.conf
 ```
 
 You should see the phone connect:
@@ -77,19 +77,19 @@ You should see the phone connect:
 
 ## 5. Run as a service (stay up across reboots)
 
-`/etc/systemd/system/meghlock.service`:
+`/etc/systemd/system/portila.service`:
 
 ```ini
 [Unit]
-Description=Meghlock tunnel server
+Description=Portila tunnel server
 After=network-online.target
 
 [Service]
-WorkingDirectory=/opt/meghlock
-ExecStart=/srv/meghlock/meghlock-server -c /srv/meghlock/config.toml
+WorkingDirectory=/opt/portila
+ExecStart=/srv/portila/portila-server -c /srv/portila/server.conf
 Restart=always
 RestartSec=3
-User=meghlock
+User=portila
 
 [Install]
 WantedBy=multi-user.target
@@ -97,22 +97,22 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now meghlock
-sudo journalctl -u meghlock -f      # logs
+sudo systemctl enable --now portila
+sudo journalctl -u portila -f      # logs
 ```
 
 ```bash for create user
-sudo useradd --system --home /srv/meghlock --shell /usr/sbin/nologin meghlock
-sudo chown -R meghlock:meghlock /srv/meghlock
+sudo useradd --system --home /srv/portila --shell /usr/sbin/nologin portila
+sudo chown -R portila:portila /srv/portila
 ```
 
 ```bash for restart
 sudo systemctl daemon-reload
-sudo systemctl restart meghlock
+sudo systemctl restart portila
 ```
 
 ```bash for permission
-sud chmod +x /srv/meghlock/meghlock-server-arm64
+sudo chmod +x /srv/portila/portila-server-arm64
 ```
 
 ## Using it from a browser

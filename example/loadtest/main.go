@@ -1,4 +1,4 @@
-// Command loadtest boots a meghlock server+client in-process and drives N
+// Command loadtest boots a portila server+client in-process and drives N
 // browser-like users (each: login, then load pages whose CSS/JS assets are
 // fetched in parallel and cached) through the CONNECT proxy, then reports
 // latency, per-site concurrency, and the shared exit IP.
@@ -178,7 +178,7 @@ func report(d reportData) {
 		return d.pageLat[int(float64(len(d.pageLat)-1)*p)].Round(time.Millisecond)
 	}
 
-	fmt.Println("\n================ Meghlock local simulation ================")
+	fmt.Println("\n================ Portila local simulation ================")
 	fmt.Printf("config : %d users, %d pages each, per-site cap=%d, global streams=%d, asset work=%v\n",
 		d.users, d.pages, d.perHost, d.streams, d.work)
 	fmt.Printf("traffic: %d requests, %d failed, wall=%v\n", d.reqs, d.fails, d.wall.Round(time.Millisecond))

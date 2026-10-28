@@ -1,5 +1,5 @@
 // Command serve runs the demo site over HTTPS so you can browse it manually
-// (directly, or through the meghlock proxy by configuring your browser).
+// (directly, or through the portila proxy by configuring your browser).
 package main
 
 import (

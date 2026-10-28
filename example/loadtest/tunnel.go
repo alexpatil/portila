@@ -15,7 +15,7 @@ const (
 	tunnelPassword = "loadtest-pass"
 )
 
-// bootTunnel starts a meghlock server + client in-process and returns the proxy
+// bootTunnel starts a portila server + client in-process and returns the proxy
 // address (the server's CONNECT port). The tunnel's internal loggers are
 // silenced so only the simulation report is printed.
 func bootTunnel(perHost int, maxStreams int64) (proxyAddr string, stop func()) {
