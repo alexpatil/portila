@@ -30,28 +30,23 @@ A modern, memory-safe alternative to Rathole and FRP with zero bloat.
 
 ## 🚀 Quick Start
 
-### 1. Installation
+### 1. Download
 
-**Download Pre-built Binaries:**
-Grab the latest release archive for your OS (Linux, macOS, Windows, Android) from [GitHub Releases](https://github.com/alexpatil/portila/releases).
+Download and extract the latest release for your OS from **[GitHub Releases](https://github.com/alexpatil/portila/releases/latest)**:
 
-**Or install via Go:**
-```bash
-go install github.com/alexpatil/portila/cmd/server@latest
-go install github.com/alexpatil/portila/cmd/client@latest
-```
+| OS | Download |
+| :--- | :--- |
+| **Linux (x86_64)** | `portila_v0.1.0_linux_amd64.tar.gz` |
+| **Linux (ARM64)** | `portila_v0.1.0_linux_arm64.tar.gz` |
+| **macOS (Apple Silicon)** | `portila_v0.1.0_darwin_arm64.tar.gz` |
+| **macOS (Intel)** | `portila_v0.1.0_darwin_amd64.tar.gz` |
+| **Windows** | `portila_v0.1.0_windows_amd64.zip` |
 
-**Or build from source:**
-```bash
-git clone https://github.com/alexpatil/portila.git
-cd portila
-go build -o portila-server ./cmd/server
-go build -o portila-client ./cmd/client
-```
+> 💡 *Each release package contains pre-built binaries (`portila-server`, `portila-client`) and default config templates (`server.conf`, `client.conf`). No Go installation needed.*
 
 ### 2. Server (VPS)
 
-Create `server.conf`:
+Edit `server.conf`:
 ```ini
 [server]
 quic_address = 0.0.0.0:4433
@@ -103,6 +98,17 @@ Run client:
 | **Windows** | `amd64`, `arm64` | ✅ | ✅ | — |
 | **Android** | Termux CLI / Native Gomobile (`.aar`) | ✅ | ✅ | ✅ |
 | **FreeBSD** | `amd64` (Routers / OPNsense) | ✅ | ✅ | — |
+
+---
+
+### 🛠️ Building from Source (Optional)
+
+If you prefer building from source:
+```bash
+git clone https://github.com/alexpatil/portila.git && cd portila
+go build -o portila-server ./cmd/server
+go build -o portila-client ./cmd/client
+```
 
 ---
 
