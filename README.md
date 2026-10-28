@@ -2,9 +2,10 @@
 
 # 🌀 Portila
 
-**High-performance, ultra-low latency reverse tunnel and mobile exit gateway built in Go over QUIC (HTTP/3).**
+**Ultra-fast, zero-bloat reverse tunnel & mobile exit gateway built on QUIC (HTTP/3).**
 
-A modern, memory-safe alternative to Rathole and FRP with zero bloat.
+Expose local services behind NAT/firewalls to the internet, or turn any remote device into an encrypted exit node.  
+*A modern, memory-safe alternative to Rathole and FRP.*
 
 [![CI](https://github.com/alexpatil/portila/actions/workflows/ci.yml/badge.svg)](https://github.com/alexpatil/portila/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/alexpatil/portila?style=flat&color=3b82f6)](https://github.com/alexpatil/portila/releases)
@@ -32,19 +33,19 @@ A modern, memory-safe alternative to Rathole and FRP with zero bloat.
 
 ### 1. Download
 
-Download and extract the latest release for your OS from **[GitHub Releases](https://github.com/alexpatil/portila/releases/latest)**:
+Download and extract the pre-built release package for your operating system:
 
-| OS | Download |
-| :--- | :--- |
-| **Linux (x86_64)** | `portila_v0.1.0_linux_amd64.tar.gz` |
-| **Linux (ARM64)** | `portila_v0.1.0_linux_arm64.tar.gz` |
-| **macOS (Apple Silicon)** | `portila_v0.1.0_darwin_arm64.tar.gz` |
-| **macOS (Intel)** | `portila_v0.1.0_darwin_amd64.tar.gz` |
-| **Windows** | `portila_v0.1.0_windows_amd64.zip` |
+| Platform | Architecture | Direct Download |
+| :--- | :--- | :--- |
+| **Linux** | `amd64` (x86_64) | [**portila_v0.1.0_linux_amd64.tar.gz**](https://github.com/alexpatil/portila/releases/latest/download/portila_v0.1.0_linux_amd64.tar.gz) |
+| **Linux** | `arm64` (aarch64) | [**portila_v0.1.0_linux_arm64.tar.gz**](https://github.com/alexpatil/portila/releases/latest/download/portila_v0.1.0_linux_arm64.tar.gz) |
+| **macOS** | Apple Silicon (`arm64`) | [**portila_v0.1.0_darwin_arm64.tar.gz**](https://github.com/alexpatil/portila/releases/latest/download/portila_v0.1.0_darwin_arm64.tar.gz) |
+| **macOS** | Intel (`amd64`) | [**portila_v0.1.0_darwin_amd64.tar.gz**](https://github.com/alexpatil/portila/releases/latest/download/portila_v0.1.0_darwin_amd64.tar.gz) |
+| **Windows** | `amd64` (x64) | [**portila_v0.1.0_windows_amd64.zip**](https://github.com/alexpatil/portila/releases/latest/download/portila_v0.1.0_windows_amd64.zip) |
 
-> 💡 *Each release package contains pre-built binaries (`portila-server`, `portila-client`) and default config templates (`server.conf`, `client.conf`). No Go installation needed.*
+> 💡 *Each release package contains pre-built binaries (`portila-server`, `portila-client`) and ready-to-edit configuration templates (`server.conf`, `client.conf`). No Go installation needed.*
 
-### 2. Server (VPS)
+### 2. Run Server (on public VPS)
 
 Edit `server.conf`:
 ```ini
@@ -62,7 +63,7 @@ Run server:
 ./portila-server -c server.conf
 ```
 
-### 3. Client (Local / Behind NAT)
+### 3. Run Client (Local / Behind NAT)
 
 **Reverse Mode (Expose local services):**
 ```ini
@@ -82,7 +83,7 @@ Run client:
 ./portila-client -c client.conf
 ```
 
-*Or run directly via CLI flag (no config file needed):*
+*Or run directly via 1-line CLI without a config file:*
 ```bash
 ./portila-client -server YOUR_VPS_IP:4433 -pass your-secret-token -id my_device -mode reverse -target 127.0.0.1:3000
 ```
@@ -103,7 +104,7 @@ Run client:
 
 ### 🛠️ Building from Source (Optional)
 
-If you prefer building from source:
+If you prefer compiling from source:
 ```bash
 git clone https://github.com/alexpatil/portila.git && cd portila
 go build -o portila-server ./cmd/server
@@ -114,13 +115,14 @@ go build -o portila-client ./cmd/client
 
 ## 🧪 Testing
 
-Run the test suite:
+Run the full integration and race detection test suite:
 ```bash
 go test -v -race ./pkg/... ./test
 ```
 
 ---
 
-## 📄 License
+## 📄 License & Copyright
 
-[MIT License](LICENSE) © 2026 Portila Authors.
+Released under the [MIT License](LICENSE).  
+Copyright © 2026 Portila Authors. All rights reserved.
