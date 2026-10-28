@@ -7,7 +7,7 @@
 Expose local services behind NAT/firewalls to the internet, or turn any remote device into an encrypted exit node.  
 *A modern, memory-safe alternative to Rathole and FRP.*
 
-[![CI](https://github.com/alexpatil/portila/actions/workflows/ci.yml/badge.svg)](https://github.com/alexpatil/portila/actions/workflows/ci.yml)
+[![CI](https://github.com/alexpatil/portila/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexpatil/portila/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/alexpatil/portila?style=flat&color=3b82f6)](https://github.com/alexpatil/portila/releases)
 [![Go Version](https://img.shields.io/badge/Go-%3E%3D1.24-00ADD8?style=flat&logo=go)](https://golang.org)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20|%20macOS%20|%20Windows%20|%20Android-brightgreen)](#-platforms)
