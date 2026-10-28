@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -11,11 +12,20 @@ import (
 	"portila/pkg/server"
 )
 
+var version = "dev"
+
 func main() {
 	configPath := flag.String("c", "server.conf", "Path to server configuration file (.conf or .json)")
 	quicAddr := flag.String("quic", "", "Override QUIC listen address (e.g. 0.0.0.0:4433)")
 	password := flag.String("pass", "", "Override auth password")
+	showVersion := flag.Bool("v", false, "Print version and exit")
+	flag.BoolVar(showVersion, "version", false, "Print version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("portila-server version %s\n", version)
+		os.Exit(0)
+	}
 
 	targetConfig := *configPath
 	if targetConfig == "server.conf" {

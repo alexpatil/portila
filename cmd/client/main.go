@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -11,6 +12,8 @@ import (
 	"portila/pkg/config"
 )
 
+var version = "dev"
+
 func main() {
 	configPath := flag.String("c", "client.conf", "Path to client configuration file (.conf or .json)")
 	serverAddr := flag.String("server", "", "Override server address (e.g. 1.2.3.4:4433)")
@@ -18,7 +21,14 @@ func main() {
 	clientID := flag.String("id", "", "Override client ID")
 	mode := flag.String("mode", "", "Tunnel mode: reverse (Rathole/FRP local proxy) or exit (mobile exit proxy)")
 	target := flag.String("target", "", "Local target in reverse mode (e.g. 127.0.0.1:8080)")
+	showVersion := flag.Bool("v", false, "Print version and exit")
+	flag.BoolVar(showVersion, "version", false, "Print version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("portila-client version %s\n", version)
+		os.Exit(0)
+	}
 
 	targetConfig := *configPath
 	if targetConfig == "client.conf" {

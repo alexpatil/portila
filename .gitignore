@@ -1,0 +1,35 @@
+# Binaries & Shared Libraries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.aar
+*.jar
+portila-server*
+portila-client*
+
+# Output & Build Directories
+bin/
+dist/
+build/
+build_output/
+release_assets/
+
+# Test Binaries & Coverage
+*.test
+*.out
+cover.out
+coverage.html
+
+# IDEs & OS Files
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Local environment & config overrides
+*.local
+local.conf
